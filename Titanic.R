@@ -21,6 +21,7 @@ prep.data <- function(data) {
   data$Pclass <- as.ordered(data$Pclass)
 
   # missing value munging
+  data$HasAge <- !is.na(data$Age)
   data[is.na(data$Age), 'Age'] <- median(data$Age, na.rm = T)
 
   # engineer features
@@ -35,12 +36,25 @@ prep.data <- function(data) {
   data[grepl('(Mme\\.)', data$Name), 'Title'] <- 'Mrs.'
   data[grepl('(Mr\\.)', data$Name), 'Title'] <- 'Mr.'
   data[grepl('(Master)', data$Name), 'Title'] <- 'Master'
-  # data[grepl('(Dr\\.)', data$Name), 'Title'] <- 'Dr.'
-  # data[grepl('(Rev\\.)', data$Name), 'Title'] <- 'Rev.'
+  # data[grepl('(Countess)', data$Name), 'Title'] <- 'Other (Female)'
+  # data[grepl('(Lady\\.)', data$Name), 'Title'] <- 'Other (Female)'
+  # data[grepl('(Dr\\.)', data$Name), 'Title'] <- 'Other (Male)'
+  # data[grepl('(Rev\\.)', data$Name), 'Title'] <- 'Other (Male)'
+  # data[grepl('(Major\\.)', data$Name), 'Title'] <- 'Other (Male)'
+  # data[grepl('(Sir\\.)', data$Name), 'Title'] <- 'Other (Male)'
+  # data[grepl('(Col\\.)', data$Name), 'Title'] <- 'Other (Male)'
+  # data[grepl('(Capt\\.)', data$Name), 'Title'] <- 'Other (Male)'
   data[(data$Title == ''), 'Title'] <- 'Other'
+
   data$Title <- as.factor(data$Title)
 
   data <- data[,!(colnames(data) %in% drops)]
+
+  # drop columns with few values
+  data <- data[!(data$Embarked == ''),]
+
+  # normalize
+  data$Fare <- log10(data$Fare + 1)
 
   data
 }
