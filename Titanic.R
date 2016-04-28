@@ -8,20 +8,20 @@ require('mice')
 prep.data <- function(data, hasSurvived = T) {
   #clean the data
   drops = c(
-    'Ticket',
-    'Cabin',
-    'Parch',
-    'SibSp',
-    'Name',
-    'Sex',
+    # 'Ticket',
+    # 'Cabin',
+    # 'Parch',
+    # 'SibSp',
+    # 'Name',
+    # 'Sex',
     # 'HasAge',
-    'Embarked',
-    'Fare',
+    # 'Embarked',
+    # 'Fare',
     # 'FamilySize',
     # 'HasCabin',
     # 'Age',
     # 'Title'
-    'Pclass'
+    # 'Pclass'
   )
 
   # column transformations
@@ -68,7 +68,7 @@ prep.data <- function(data, hasSurvived = T) {
   data <- data[,!(colnames(data) %in% drops)]
 
   # missing value munging
-  data <- complete(mice(data,m=5,meth='pmm', seed = seed),1)
+  # data <- complete(mice(data,m=5,meth='pmm', seed = seed),1)
 
   data
 }
@@ -129,9 +129,20 @@ production <- function(train.data, test.data) {
   write.csv(output.file, file = 'production.csv', row.names = F)
 }
 
+export.for.ml <- function(train.data, test.data) {
+  data.train <- prep.data(train.data)
+  data.test  <- prep.data(test.data, hasSurvived = F)
+
+  write.csv(data.train, file = 'data.train.csv', row.names = F, na = '')
+  write.csv(data.test, file = 'data.test.csv', row.names = F, na = '')
+
+
+}
+
 # run code
 data <- read.csv('train.csv', header = T)
 data.test <- read.csv('test.csv', header = T)
 
 # sandbox(data)
-production(data, data.test)
+# production(data, data.test)
+export.for.ml(data, data.test)
