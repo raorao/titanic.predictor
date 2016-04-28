@@ -58,31 +58,44 @@ prep.data <- function(data) {
   data
 }
 
-data.from.csv <- read.csv('train.csv', header = T)
-data <- prep.data(data.from.csv)
+evaluate.model <- function(model, test.data) {
+  pdf("titanic.pdf")
+  varImpPlot(model)
+  dev.off()
 
-sample <- sample(1:nrow(data), 0.7*nrow(data))
-data.train <- data[sample,]
-data.test <- data[-sample,]
+  predictions <- predict(model, test.data, type="response")
 
-model = randomForest(
-  Survived ~ .,
-  data = data.train,
-  importance=TRUE
-)
+  print(confusionMatrix(predictions, test.data$Survived, positive = "Died"))
 
-pdf("titanic.pdf")
-varImpPlot(model)
-dev.off()
+  precision <- posPredValue(predictions, test.data$Survived)
+  recall <- sensitivity(predictions, test.data$Survived)
 
-predictions <- predict(model, data.test, type="response")
+  F1 <- (2 * precision * recall) / (precision + recall)
 
-print(confusionMatrix(predictions, data.test$Survived, positive = "Died"))
+  writeLines("your F1 is...!\n")
+  print(F1)
+}
 
-precision <- posPredValue(predictions, data.test$Survived)
-recall <- sensitivity(predictions, data.test$Survived)
+train.model <- function(train.data) {
+  randomForest(
+    Survived ~ .,
+    data = train.data,
+    importance=TRUE
+  )
+}
 
-F1 <- (2 * precision * recall) / (precision + recall)
+sandbox <- function(data) {
+  sample <- sample(1:nrow(data), 0.7*nrow(data))
+  data.train <- prep.data(data[sample,])
+  data.test <- prep.data(data[-sample,])
 
-writeLines("your F1 is...!\n")
-print(F1)
+  model <- train.model(data.train)
+  evaluate.model(model, data.test)
+}
+
+# run code
+data <- read.csv('train.csv', header = T)
+sandbox(data)
+
+
+
