@@ -14,7 +14,14 @@ prep.data <- function(data, hasSurvived = T) {
     'SibSp',
     'Name',
     'Sex',
-    'HasAge'
+    # 'HasAge',
+    'Embarked',
+    'Fare',
+    # 'FamilySize',
+    # 'HasCabin',
+    # 'Age',
+    # 'Title'
+    'Pclass'
   )
 
   # column transformations
@@ -88,7 +95,10 @@ train.model <- function(train.data) {
   randomForest(
     Survived ~ . -PassengerId,
     data = train.data,
-    importance=TRUE
+    importance=TRUE,
+    mtry = 2,
+    nodesize = 10,
+    ntree = 4000
   )
 }
 
