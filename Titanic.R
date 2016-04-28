@@ -125,6 +125,7 @@ production <- function(train.data, test.data) {
   colnames(output.file) <- c("Survived", "PassengerId")
   levels(output.file$Survived) <- c(0, 1)
 
+  writeLines('output is ready at production.csv\n\n')
   write.csv(output.file, file = 'production.csv', row.names = F)
 }
 
