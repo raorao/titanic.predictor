@@ -55,9 +55,6 @@ prep.data <- function(data) {
   # missing value munging
   data <- complete(mice(data,m=5,meth='pmm', seed = seed),1)
 
-  # normalize
-  data$Fare <- log10(data$Fare + 1)
-
   data
 }
 
