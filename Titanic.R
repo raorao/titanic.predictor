@@ -1,7 +1,9 @@
 setwd('./')
-
+seed = sample(1:1000, 1)
+set.seed(seed)
 require('randomForest')
 require('caret')
+require('mice')
 
 prep.data <- function(data) {
   #clean the data
@@ -20,13 +22,12 @@ prep.data <- function(data) {
 
   data$Pclass <- as.ordered(data$Pclass)
 
-  # missing value munging
-  data$HasAge <- !is.na(data$Age)
-  data[is.na(data$Age), 'Age'] <- median(data$Age, na.rm = T)
+  data[(data$Embarked == ''),'Embarked'] = NA
 
   # engineer features
   data$HasCabin <- (data$Cabin == "")
   data$FamilySize <- data$Parch + data$SibSp
+  data$HasAge <- !is.na(data$Age)
 
   data$Title <- vector(mode="character", length=nrow(data))
   data[grepl('(Miss)', data$Name), 'Title'] <- 'Miss'
@@ -45,13 +46,12 @@ prep.data <- function(data) {
   # data[grepl('(Col\\.)', data$Name), 'Title'] <- 'Other (Male)'
   # data[grepl('(Capt\\.)', data$Name), 'Title'] <- 'Other (Male)'
   data[(data$Title == ''), 'Title'] <- 'Other'
-
   data$Title <- as.factor(data$Title)
 
   data <- data[,!(colnames(data) %in% drops)]
 
-  # drop columns with few values
-  data <- data[!(data$Embarked == ''),]
+  # missing value munging
+  data <- complete(mice(data,m=5,meth='pmm', seed = seed),1)
 
   # normalize
   data$Fare <- log10(data$Fare + 1)
