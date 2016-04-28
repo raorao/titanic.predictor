@@ -13,7 +13,9 @@ prep.data <- function(data) {
     'Cabin',
     'Parch',
     'SibSp',
-    'Name'
+    'Name',
+    'Sex',
+    'HasAge'
   )
 
   # column transformations
