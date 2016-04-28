@@ -5,10 +5,9 @@ require('randomForest')
 require('caret')
 require('mice')
 
-prep.data <- function(data) {
+prep.data <- function(data, hasSurvived = T) {
   #clean the data
   drops = c(
-    'PassengerId',
     'Ticket',
     'Cabin',
     'Parch',
@@ -19,6 +18,13 @@ prep.data <- function(data) {
   )
 
   # column transformations
+  if (!hasSurvived) {
+    data = data.frame(
+      'Survived' = vector(mode="character", length=nrow(data)),
+      data
+    )
+  }
+
   data$Survived <- as.factor(data$Survived)
   levels(data$Survived) <- c("Died", "Lived")
 
@@ -50,6 +56,8 @@ prep.data <- function(data) {
   data[(data$Title == ''), 'Title'] <- 'Other'
   data$Title <- as.factor(data$Title)
 
+  data$Embarked <- droplevels(data$Embarked)
+
   data <- data[,!(colnames(data) %in% drops)]
 
   # missing value munging
@@ -78,7 +86,7 @@ evaluate.model <- function(model, test.data) {
 
 train.model <- function(train.data) {
   randomForest(
-    Survived ~ .,
+    Survived ~ . -PassengerId,
     data = train.data,
     importance=TRUE
   )
@@ -87,15 +95,32 @@ train.model <- function(train.data) {
 sandbox <- function(data) {
   sample <- sample(1:nrow(data), 0.7*nrow(data))
   data.train <- prep.data(data[sample,])
-  data.test <- prep.data(data[-sample,])
+  data.test  <- prep.data(data[-sample,])
 
   model <- train.model(data.train)
   evaluate.model(model, data.test)
 }
 
+production <- function(train.data, test.data) {
+  data.train <- prep.data(train.data)
+  data.test  <- prep.data(test.data, hasSurvived = F)
+
+  model <- train.model(data.train)
+
+  prediction <- predict(model, data.test, type="response")
+
+  output.file <- as.data.frame(as.matrix(prediction))
+
+  output.file$PassengerId <- test.data$PassengerId
+  colnames(output.file) <- c("Survived", "PassengerId")
+  levels(output.file$Survived) <- c(0, 1)
+
+  write.csv(output.file, file = 'production.csv', row.names = F)
+}
+
 # run code
 data <- read.csv('train.csv', header = T)
-sandbox(data)
+data.test <- read.csv('test.csv', header = T)
 
-
-
+# sandbox(data)
+production(data, data.test)
