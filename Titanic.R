@@ -7,21 +7,23 @@ require('mice')
 
 prep.data <- function(data, hasSurvived = T) {
   #clean the data
-  drops = c(
-    'Ticket',
-    'Cabin',
-    'Parch',
-    'SibSp',
-    'Name',
-    'Sex',
-    # 'HasAge',
-    'Embarked',
-    'Fare',
-    # 'FamilySize',
-    # 'HasCabin',
-    # 'Age',
-    # 'Title'
-    'Pclass'
+  keeps = c(
+    'PassengerId'
+    ,'Survived'
+    # ,'Ticket'
+    # ,'Cabin'
+    # ,'Name'
+    ,'Parch'
+    ,'SibSp'
+    ,'Sex'
+    ,'HasAge'
+    ,'Fare'
+    ,'Embarked'
+    ,'FamilySize'
+    ,'HasCabin'
+    ,'Age'
+    ,'Title'
+    ,'Pclass'
   )
 
   # column transformations
@@ -65,7 +67,7 @@ prep.data <- function(data, hasSurvived = T) {
 
   data$Embarked <- droplevels(data$Embarked)
 
-  data <- data[,!(colnames(data) %in% drops)]
+  data <- data[,(colnames(data) %in% keeps)]
 
   # missing value munging
   data <- complete(mice(data,m=5,meth='pmm', seed = seed),1)
