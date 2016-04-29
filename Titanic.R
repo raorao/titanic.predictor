@@ -12,13 +12,13 @@ prep.data <- function(data, hasSurvived = T) {
     # ,'Ticket'
     # ,'Cabin'
     # ,'Name'
-    ,'Parch'
-    ,'SibSp'
-    ,'Sex'
-    ,'HasAge'
+    # ,'Parch'
+    # ,'SibSp'
+    # ,'Sex'
+    # ,'HasAge'
     ,'Fare'
-    ,'Embarked'
-    ,'FamilySize'
+    # ,'Embarked'
+    # ,'FamilySize'
     ,'HasCabin'
     ,'Age'
     ,'Title'
@@ -89,7 +89,6 @@ train.model <- function(train.data) {
     trControl=train_control,
     method="ranger"
   )
-
 }
 
 sandbox <- function(data) {
