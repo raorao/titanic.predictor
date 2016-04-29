@@ -81,12 +81,12 @@ evaluate.model <- function(model, test.data) {
 }
 
 train.model <- function(train.data) {
-  train_control <- trainControl(method="cv", number=10, savePredictions = TRUE)
+  train.control <- trainControl(method="cv", number=10, savePredictions = TRUE)
 
   train(
     Survived ~. -PassengerId,
     data = prep.data(train.data),
-    trControl=train_control,
+    trControl=train.control,
     method="ranger"
   )
 }
