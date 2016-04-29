@@ -87,11 +87,33 @@ train.model <- function(train.data) {
     Survived ~. -PassengerId,
     data = prep.data(train.data),
     trControl=train.control,
-    method="Boruta"
+    method="ranger"
   )
 }
 
+recursive.feature.elimination <- function(data) {
+  # see: http://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
+
+  writeLines("\n\nStarting Feature Selection\n\n")
+
+  prepped <- prep.data(data)
+
+  control <- rfeControl(functions=rfFuncs, method="cv", number=10)
+
+  results <- rfe(
+    prepped[,!(colnames(prepped) %in% c('Survived'))],
+    prepped$Survived,
+    sizes = c(1:(ncol(prepped) - 1)),
+    rfeControl = control
+  )
+
+  print(results)
+
+  print(predictors(results))
+}
+
 sandbox <- function(data) {
+  # recursive.feature.eli mination(data)
   model <- train.model(data)
   evaluate.model(model, data)
 }
