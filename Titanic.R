@@ -17,6 +17,7 @@ prep.data <- function(data, hasSurvived = T) {
     # ,'Embarked'
     # ,'FamilySize'
     # ,'HasCabin'
+    # ,'HasFamily'
     ,'Fare'
     ,'Age'
     ,'Title'
@@ -41,6 +42,7 @@ prep.data <- function(data, hasSurvived = T) {
   # engineer features
   data$HasCabin <- (data$Cabin == "")
   data$FamilySize <- data$Parch + data$SibSp
+  data$HasFamily <- data$FamilySize > 0
   data$HasAge <- !is.na(data$Age)
 
   data$Title <- vector(mode="character", length=nrow(data))
