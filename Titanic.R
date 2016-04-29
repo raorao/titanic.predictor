@@ -1,6 +1,6 @@
 setwd('./')
-seed = sample(1:1000, 1)
-set.seed(seed)
+# seed = sample(1:1000, 1)
+# set.seed(seed)
 require('caret')
 require('mice')
 
@@ -16,10 +16,10 @@ prep.data <- function(data, hasSurvived = T) {
     # ,'SibSp'
     # ,'Sex'
     # ,'HasAge'
-    ,'Fare'
     # ,'Embarked'
     # ,'FamilySize'
     # ,'HasCabin'
+    ,'Fare'
     ,'Age'
     ,'Title'
     ,'Pclass'
@@ -69,7 +69,7 @@ prep.data <- function(data, hasSurvived = T) {
   data <- data[,(colnames(data) %in% keeps)]
 
   # missing value munging
-  data <- complete(mice(data,m=5,meth='pmm', seed = seed, printFlag = F),1)
+  data <- complete(mice(data,m=5,meth='pmm', printFlag = F),1)
 
   data
 }
