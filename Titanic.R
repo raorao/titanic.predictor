@@ -1,7 +1,6 @@
 setwd('./')
 seed = sample(1:1000, 1)
 set.seed(seed)
-require('randomForest')
 require('caret')
 require('mice')
 
@@ -70,58 +69,43 @@ prep.data <- function(data, hasSurvived = T) {
   data <- data[,(colnames(data) %in% keeps)]
 
   # missing value munging
-  data <- complete(mice(data,m=5,meth='pmm', seed = seed),1)
+  data <- complete(mice(data,m=5,meth='pmm', seed = seed, printFlag = F),1)
 
   data
 }
 
 evaluate.model <- function(model, test.data) {
-  pdf("titanic.pdf")
-  varImpPlot(model)
-  dev.off()
-
-  predictions <- predict(model, test.data, type="response")
-
-  print(confusionMatrix(predictions, test.data$Survived, positive = "Died"))
-
-  precision <- posPredValue(predictions, test.data$Survived)
-  recall <- sensitivity(predictions, test.data$Survived)
-
-  F1 <- (2 * precision * recall) / (precision + recall)
-
-  writeLines("your F1 is...!\n")
-  print(F1)
+  predictions <- predict(model, prep.data(test.data, hasSurvived = F))
+  print(confusionMatrix(model))
+  print(model$results)
 }
 
 train.model <- function(train.data) {
-  randomForest(
-    Survived ~ . -PassengerId,
-    data = train.data,
-    importance=TRUE,
-    mtry = 2,
-    nodesize = 10,
-    ntree = 4000
+  train_control <- trainControl(method="cv", number=10, savePredictions = TRUE)
+
+  train(
+    Survived ~. -PassengerId,
+    data = prep.data(train.data),
+    trControl=train_control,
+    method="ranger"
   )
+
 }
 
 sandbox <- function(data) {
-  sample <- sample(1:nrow(data), 0.7*nrow(data))
-  data.train <- prep.data(data[sample,])
-  data.test  <- prep.data(data[-sample,])
-
-  model <- train.model(data.train)
-  evaluate.model(model, data.test)
+  model <- train.model(data)
+  evaluate.model(model, data)
 }
 
 production <- function(train.data, test.data) {
-  data.train <- prep.data(train.data)
   data.test  <- prep.data(test.data, hasSurvived = F)
+  model      <- train.model(train.data)
 
-  model <- train.model(data.train)
+  evaluate.model(model, train.data)
 
-  prediction <- predict(model, data.test, type="response")
+  predictions <- predict(model, data.test)
 
-  output.file <- as.data.frame(as.matrix(prediction))
+  output.file <- as.data.frame(as.matrix(predictions))
 
   output.file$PassengerId <- test.data$PassengerId
   colnames(output.file) <- c("Survived", "PassengerId")
