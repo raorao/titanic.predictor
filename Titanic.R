@@ -87,7 +87,7 @@ train.model <- function(train.data) {
     Survived ~. -PassengerId,
     data = prep.data(train.data),
     trControl=train.control,
-    method="ranger"
+    method="rf"
   )
 }
 
