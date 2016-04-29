@@ -1,6 +1,4 @@
 setwd('./')
-# seed = sample(1:1000, 1)
-# set.seed(seed)
 require('caret')
 require('mice')
 
