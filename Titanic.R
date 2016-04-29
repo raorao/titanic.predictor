@@ -110,7 +110,7 @@ production <- function(train.data, test.data) {
   colnames(output.file) <- c("Survived", "PassengerId")
   levels(output.file$Survived) <- c(0, 1)
 
-  writeLines('output is ready at production.csv\n\n')
+  writeLines('\n\noutput is ready at production.csv\n\n')
   write.csv(output.file, file = 'production.csv', row.names = F)
 }
 
@@ -118,5 +118,10 @@ production <- function(train.data, test.data) {
 data <- read.csv('train.csv', header = T)
 data.test <- read.csv('test.csv', header = T)
 
-# sandbox(data)
-production(data, data.test)
+args <- commandArgs(trailingOnly = TRUE)
+
+if (length(args) == 1 && args[1] == "production") {
+  production(data, data.test)
+} else {
+  sandbox(data)
+}
