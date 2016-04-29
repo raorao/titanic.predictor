@@ -19,7 +19,7 @@ prep.data <- function(data, hasSurvived = T) {
     ,'Fare'
     # ,'Embarked'
     # ,'FamilySize'
-    ,'HasCabin'
+    # ,'HasCabin'
     ,'Age'
     ,'Title'
     ,'Pclass'
